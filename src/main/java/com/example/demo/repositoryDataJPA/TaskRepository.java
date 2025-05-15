@@ -9,8 +9,4 @@ import com.example.demo.entityDB.TaskStatus;
 import java.time.LocalDateTime;
 import java.util.List;
 
-public interface TaskRepository extends JpaRepository<TaskEntity, Long> {
-
-    @Query("SELECT task FROM TaskEntity task WHERE task.status = 'CONSIDERED' AND task.scheduledTime <= CURRENT TIMESTAMP")
-    List<TaskEntity> findReadyTasks();
-}
+public interface TaskRepository extends JpaRepository<TaskEntity, Long>, TaskRepositoryCustomInterface {}
