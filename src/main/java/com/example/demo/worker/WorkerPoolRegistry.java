@@ -11,10 +11,10 @@ import java.util.concurrent.Executors;
 @Component
 public class WorkerPoolRegistry {
 
-    private final Map<String, ExecutorService> pools = new ConcurrentHashMap<>();
+    private static final Map<String, ExecutorService> pools = new ConcurrentHashMap<>();
 
     public WorkerPoolRegistry() {
-        pools.put("default", Executors.newFixedThreadPool(4));
+        pools.put("default", Executors.newFixedThreadPool(5));
     }
 
     public static class WorkerPool {
@@ -25,16 +25,27 @@ public class WorkerPoolRegistry {
         }
 
         public void submit(TaskEntity task) {
-            executor.submit(() ->  {
-                System.out.println("TEST: Running this " + task.getId() + " Class: " + task.getTaskClassName());
-                // to do: будущая логика воркера
+            executor.submit(() -> {
+                try {
+                    System.out.println("TEST: Running task " + task.getId() + " Class: " + task.getTaskClassName());
 
+                    // Пример загрузки и запуска класса по имени (будущая реализация)
+                    Class<?> clazz = Class.forName(task.getTaskClassName());
+                    Runnable runnable = (Runnable) clazz.getDeclaredConstructor().newInstance();
+                    runnable.run();
+
+                } catch (Exception e) {
+                    System.err.println("Failed to execute task ID: " + task.getId() + ", error: " + e.getMessage());
+                    e.printStackTrace();
+                }
             });
         }
+
     }
 
     public WorkerPool get(String category) {
         return new WorkerPool(pools.getOrDefault(category, pools.get("default")));
     }
+
 
 }

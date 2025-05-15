@@ -1,8 +1,9 @@
 package com.example.demo.controller;
 
-import com.example.demo.entityDB.TaskEntity;
 import com.example.demo.service.TaskManager;
-
+import com.example.demo.entityDB.TaskEntity;
+import com.example.demo.entityDB.TaskStatus;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -10,22 +11,31 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/tasks")
 public class TaskController {
 
-    private TaskManager taskManager;
+    private final TaskManager taskManager;
 
+    @Autowired
     public TaskController(TaskManager taskManager) {
         this.taskManager = taskManager;
     }
 
     @PostMapping
-    public ResponseEntity<TaskEntity> createTask(@RequestBody TaskEntity task) {
-        TaskEntity saved = taskManager.createTask(task);
-        return ResponseEntity.ok(saved);
+    public ResponseEntity<Long> createTask(@RequestBody TaskEntity task) {
+        Long taskId = taskManager.createAndScheduleTask(task);
+        return ResponseEntity.ok(taskId);
     }
 
-    @PostMapping("/{id}/cancel")
-    public ResponseEntity<String> cancelTask(@PathVariable Long id) {
-        boolean success = taskManager.cancelTask(id);
-        return ResponseEntity.ok(success ? "Cancelled" : "Failed to cancel");
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> cancelTask(@PathVariable Long id) {
+        taskManager.cancelTask(id);
+        return ResponseEntity.noContent().build();
     }
 
+    @GetMapping("/{id}/status")
+    public ResponseEntity<TaskStatus> getTaskStatus(@PathVariable Long id) {
+        TaskStatus status = taskManager.getTaskStatus(id);
+        if (status == null) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(status);
+    }
 }
