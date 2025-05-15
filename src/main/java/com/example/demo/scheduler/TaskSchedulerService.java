@@ -27,7 +27,7 @@ public class TaskSchedulerService {
     }
 
 
-    @Scheduled
+    @Scheduled(initialDelay = 1000, fixedDelay = 5000)
     public void checkAndDispatchTasks() {
         List<TaskEntity> readyTasks = taskRepository.findAll().stream()
                 .filter(task -> task.getStatus() == TaskStatus.CONSIDERED

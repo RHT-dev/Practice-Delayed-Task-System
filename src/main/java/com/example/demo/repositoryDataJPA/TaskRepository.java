@@ -9,4 +9,5 @@ import com.example.demo.entityDB.TaskStatus;
 import java.time.LocalDateTime;
 import java.util.List;
 
-public interface TaskRepository extends JpaRepository<TaskEntity, Long>, TaskRepositoryCustomInterface {}
+public interface TaskRepository extends JpaRepository<TaskEntity, Long>, TaskRepositoryCustomInterface {
+}

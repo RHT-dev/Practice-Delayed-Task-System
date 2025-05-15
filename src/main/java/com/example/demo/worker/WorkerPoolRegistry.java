@@ -25,11 +25,11 @@ public class WorkerPoolRegistry {
         }
 
         public void submit(TaskEntity task) {
-            /*executor.submit(() ->  {
+            executor.submit(() ->  {
                 System.out.println("TEST: Running this " + task.getId() + " Class: " + task.getTaskClassName());
                 // to do: будущая логика воркера
 
-            })*/
+            });
         }
     }
 
