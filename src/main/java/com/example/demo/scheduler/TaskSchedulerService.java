@@ -4,6 +4,7 @@ import com.example.demo.entityDB.TaskStatus;
 import com.example.demo.entityDB.TaskEntity;
 import com.example.demo.repositoryDataJPA.TaskRepository;
 import com.example.demo.task.AbstractTask;
+import com.example.demo.worker.WorkerPool;
 import com.example.demo.worker.WorkerPoolRegistry;
 
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -25,11 +26,13 @@ public class TaskSchedulerService {
     private final TaskRepository taskRepository;
     private final WorkerPoolRegistry workerPoolRegistry;
     private final ObjectMapper objectMapper;
+    private final WorkerPool workerPool;
 
-    public TaskSchedulerService(TaskRepository taskRepository, WorkerPoolRegistry workerPoolRegistry, ObjectMapper objectMapper) {
+    public TaskSchedulerService(TaskRepository taskRepository, WorkerPoolRegistry workerPoolRegistry, ObjectMapper objectMapper, WorkerPool workerPool) {
         this.taskRepository = taskRepository;
         this.workerPoolRegistry = workerPoolRegistry;
         this.objectMapper = objectMapper;
+        this.workerPool = workerPool;
     }
 
 
@@ -47,15 +50,15 @@ public class TaskSchedulerService {
                 continue;
             }
             try {
-                Class<?> classTask = Class.forName(task.getTaskClassName());
-
-                AbstractTask abstractTask = (AbstractTask) classTask.getDeclaredConstructor().newInstance();
-
-                Map<String, Object> params = objectMapper.readValue(task.getParamsJSON(), new TypeReference<>() {});
-                abstractTask.execute(params);
-
-                task.setStatus(TaskStatus.SUCCESS);
-                taskRepository.save(task);
+                WorkerPool pool = workerPoolRegistry.get(task.getCategory());
+                if (pool != null) {
+                    pool.submit(task);
+                }
+                else {
+                    log.warn("NO WORKER FOR THIS CATEGORY", task.getCategory());
+                    task.setStatus(TaskStatus.FAILED);
+                    taskRepository.save(task);
+                }
 
             } catch (Exception e) {
                 log.error("Ошибка выполнения задачи id = " + task.getId() + "\nError: " +  e.getMessage());

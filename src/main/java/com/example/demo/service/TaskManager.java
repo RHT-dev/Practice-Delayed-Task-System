@@ -61,4 +61,10 @@ public class TaskManager {
             throw new IllegalStateException("Pool does not exist");
         }
     }
+
+    public void init() {
+        if (!workerPoolRegistry.hasPool("default")) {
+            workerPoolRegistry.registerPool("default", 4);
+        }
+    }
 }
