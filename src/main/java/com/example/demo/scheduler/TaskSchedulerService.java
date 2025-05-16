@@ -3,11 +3,9 @@ package com.example.demo.scheduler;
 import com.example.demo.entityDB.TaskStatus;
 import com.example.demo.entityDB.TaskEntity;
 import com.example.demo.repositoryDataJPA.TaskRepository;
-import com.example.demo.task.AbstractTask;
 import com.example.demo.worker.WorkerPool;
 import com.example.demo.worker.WorkerPoolRegistry;
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,7 +15,6 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Map;
 
 @Service
 public class TaskSchedulerService {
@@ -50,7 +47,7 @@ public class TaskSchedulerService {
                 continue;
             }
             try {
-                WorkerPool pool = workerPoolRegistry.get(task.getCategory());
+                WorkerPool pool = workerPoolRegistry.getPool(task.getCategory());
                 if (pool != null) {
                     pool.submit(task);
                 }

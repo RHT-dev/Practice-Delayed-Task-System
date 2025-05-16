@@ -18,7 +18,7 @@ public class WorkerPoolRegistry {
         poolMap.put(category, new WorkerPool(threads));
     }
 
-    public WorkerPool get(String category) {
+    public WorkerPool getPool(String category) {
         return poolMap.getOrDefault(category, poolMap.get("default"));
     }
 

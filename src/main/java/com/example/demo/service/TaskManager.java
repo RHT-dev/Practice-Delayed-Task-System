@@ -53,7 +53,7 @@ public class TaskManager {
 
     @Transactional
     public void scheduleTask(TaskEntity task) {
-        var pool = workerPoolRegistry.get(task.getCategory());
+        var pool = workerPoolRegistry.getPool(task.getCategory());
         if (pool != null) {
             pool.submit(task);
         }
