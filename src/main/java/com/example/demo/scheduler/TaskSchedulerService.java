@@ -11,6 +11,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
@@ -42,15 +43,23 @@ public class TaskSchedulerService {
                 .toList();
 
         for (TaskEntity task : readyTasks) {
-            if (task.getStatus() == TaskStatus.CANCELED) {
-                log.info("Task {} is canceled, skipping.", task.getId());
-                continue;
-            }
-
             try {
+                // Попробуем установить статус = RUNNING — с учётом optimistic locking
+                boolean locked = tryLockTask(task);
+                if (!locked) {
+                    continue; // кто-то другой уже взял
+                }
+
                 WorkerPool pool = workerPoolRegistry.getPool(task.getCategory());
                 if (pool != null) {
-                    pool.submit(task);
+                    pool.submit(task, success -> {
+                        if (success) {
+                            task.setStatus(TaskStatus.SUCCESS);
+                            taskRepository.save(task);
+                        } else {
+                            handleFailure(task);
+                        }
+                    });
                     log.info("Task {} submitted to pool '{}'", task.getId(), task.getCategory());
                 } else {
                     log.warn("No worker pool found for category '{}'", task.getCategory());
@@ -58,11 +67,23 @@ public class TaskSchedulerService {
                 }
 
             } catch (Exception e) {
-                log.error("Ошибка выполнения задачи id = {}. Ошибка: {}", task.getId(), e.getMessage(), e);
+                log.error("Ошибка при обработке задачи id={}: {}", task.getId(), e.getMessage(), e);
                 handleFailure(task);
             }
         }
     }
+
+    private boolean tryLockTask(TaskEntity task) {
+        try {
+            task.setStatus(TaskStatus.RUNNING);
+            taskRepository.save(task); // Сработает только если никто не изменил `version`
+            return true;
+        } catch (ObjectOptimisticLockingFailureException ex) {
+            log.warn("Task {} уже обрабатывается другим обработчиком", task.getId());
+            return false;
+        }
+    }
+
 
     public void handleFailure(TaskEntity task) {
         int currentAttempts = task.getAttemptCount();

@@ -32,7 +32,9 @@ public class TaskEntity {
     private String retryParamsJSON;
 
     @Version
+    @Column(name = "version")
     private long version;
+
 
 
     // setters and getters

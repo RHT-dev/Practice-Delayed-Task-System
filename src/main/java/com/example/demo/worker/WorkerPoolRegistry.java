@@ -10,19 +10,20 @@ public class WorkerPoolRegistry {
 
     private final Map<String, WorkerPool> poolMap = new ConcurrentHashMap<>();
 
-    public WorkerPoolRegistry() {
-        registerPool("default", 4);
+    public WorkerPool getPool(String category) {
+        return poolMap.computeIfAbsent(category, cat -> new WorkerPool(4)); // дефолт 4 потока
     }
 
     public void registerPool(String category, int threads) {
         poolMap.put(category, new WorkerPool(threads));
     }
 
-    public WorkerPool getPool(String category) {
-        return poolMap.getOrDefault(category, poolMap.get("default"));
-    }
-
     public boolean hasPool(String category) {
         return poolMap.containsKey(category);
     }
+
+    public void shutdownAll() {
+        poolMap.values().forEach(WorkerPool::shutdown);
+    }
 }
+
