@@ -48,7 +48,8 @@ public class TaskManager {
     public TaskStatus getTaskStatus(Long taskID) {
         return taskRepository.findById(taskID)
                 .map(TaskEntity::getStatus)
-                .orElse(null);    }
+                .orElse(null);
+    }
 
     @Transactional
     public void scheduleTask(TaskEntity task) {
