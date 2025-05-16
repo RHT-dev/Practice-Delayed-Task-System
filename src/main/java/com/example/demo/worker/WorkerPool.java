@@ -1,11 +1,9 @@
 package com.example.demo.worker;
 
-import org.springframework.stereotype.Component;
 import com.example.demo.entityDB.TaskEntity;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-@Component
 public class WorkerPool {
     private final ExecutorService executor;
 

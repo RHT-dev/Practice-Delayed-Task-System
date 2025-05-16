@@ -23,17 +23,16 @@ public class TaskSchedulerService {
     private final TaskRepository taskRepository;
     private final WorkerPoolRegistry workerPoolRegistry;
     private final ObjectMapper objectMapper;
-    private final WorkerPool workerPool;
 
-    public TaskSchedulerService(TaskRepository taskRepository, WorkerPoolRegistry workerPoolRegistry, ObjectMapper objectMapper, WorkerPool workerPool) {
+    public TaskSchedulerService(TaskRepository taskRepository,
+                                WorkerPoolRegistry workerPoolRegistry,
+                                ObjectMapper objectMapper) {
         this.taskRepository = taskRepository;
         this.workerPoolRegistry = workerPoolRegistry;
         this.objectMapper = objectMapper;
-        this.workerPool = workerPool;
     }
 
-
-    @Scheduled(initialDelay = 1000, fixedDelay = 5000)
+    @Scheduled(initialDelay = 1000, fixedDelay = 2000)
     public void checkAndDispatchTasks() {
         List<TaskEntity> readyTasks = taskRepository.findAll().stream()
                 .filter(task -> task.getStatus() == TaskStatus.CONSIDERED
