@@ -8,7 +8,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.function.Consumer;
 
 public class WorkerPool {
     private final ExecutorService executor;
@@ -17,25 +16,25 @@ public class WorkerPool {
         this.executor = Executors.newFixedThreadPool(threads);
     }
 
-    public void submit(TaskEntity task, Consumer<Boolean> callback) {
+    public void submit(TaskEntity task) {
         executor.submit(() -> {
-            boolean success = false;
             try {
                 Class<?> clazz = Class.forName(task.getTaskClassName());
                 AbstractTask runnable = (AbstractTask) clazz.getDeclaredConstructor().newInstance();
 
+                // Параметры
                 ObjectMapper mapper = new ObjectMapper();
                 Map<String, Object> params = mapper.readValue(task.getParamsJSON(), new TypeReference<>() {});
                 runnable.execute(params);
 
-                success = true;
+                // Обновим статус задачи в БД (лучше делать через сервис)
+                // Временно лог
                 System.out.println("Task executed successfully: " + task.getId());
 
             } catch (Exception e) {
                 System.err.println("Task execution failed: " + e.getMessage());
                 e.printStackTrace();
             }
-            callback.accept(success);
         });
     }
 

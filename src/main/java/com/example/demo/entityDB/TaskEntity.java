@@ -1,5 +1,7 @@
 package com.example.demo.entityDB;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.time.LocalDateTime;
 import jakarta.persistence.*;
 
@@ -35,6 +37,25 @@ public class TaskEntity {
     @Column(name = "version")
     private long version;
 
+    public static TaskEntity fromRs(ResultSet rs) throws SQLException {
+        TaskEntity task = new TaskEntity();
+        task.setId(rs.getLong("id"));
+        task.setTaskClassName(rs.getString("task_class_name"));
+        task.setCategory(extractCategory(rs.getMetaData().getTableName(1)));   // task_category_email → email
+        task.setParamsJSON(rs.getString("params_json"));
+        task.setRetryParamsJSON(rs.getString("retry_params_json"));
+        task.setRetryType(RetryType.valueOf(rs.getString("retry_type")));
+        task.setScheduledTime(rs.getTimestamp("scheduled_time").toLocalDateTime());
+        task.setAttemptCount(rs.getInt("attempt_count"));
+        task.setMaxAttempts(rs.getInt("max_attempts"));
+        task.setStatus(TaskStatus.valueOf(rs.getString("status")));
+        task.setVersion(rs.getLong("version"));
+        return task;
+    }
+
+    private static String extractCategory(String table) {
+        return table.replaceFirst("^task_category_", "");
+    }
 
 
     // setters and getters

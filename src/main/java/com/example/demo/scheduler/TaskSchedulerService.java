@@ -1,5 +1,6 @@
 package com.example.demo.scheduler;
 
+import com.example.demo.JDBC_TEMPLATE.DynamicTaskDao;
 import com.example.demo.entityDB.TaskEntity;
 import com.example.demo.entityDB.TaskStatus;
 import com.example.demo.repositoryDataJPA.TaskRepository;
@@ -11,7 +12,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
@@ -26,6 +26,8 @@ public class TaskSchedulerService {
     private final TaskRepository taskRepository;
     private final WorkerPoolRegistry workerPoolRegistry;
     private final ObjectMapper objectMapper;
+
+    private final DynamicTaskDao dao;
 
     public TaskSchedulerService(TaskRepository taskRepository,
                                 WorkerPoolRegistry workerPoolRegistry,
@@ -43,23 +45,15 @@ public class TaskSchedulerService {
                 .toList();
 
         for (TaskEntity task : readyTasks) {
-            try {
-                // Попробуем установить статус = RUNNING — с учётом optimistic locking
-                boolean locked = tryLockTask(task);
-                if (!locked) {
-                    continue; // кто-то другой уже взял
-                }
+            if (task.getStatus() == TaskStatus.CANCELED) {
+                log.info("Task {} is canceled, skipping.", task.getId());
+                continue;
+            }
 
+            try {
                 WorkerPool pool = workerPoolRegistry.getPool(task.getCategory());
                 if (pool != null) {
-                    pool.submit(task, success -> {
-                        if (success) {
-                            task.setStatus(TaskStatus.SUCCESS);
-                            taskRepository.save(task);
-                        } else {
-                            handleFailure(task);
-                        }
-                    });
+                    pool.submit(task);
                     log.info("Task {} submitted to pool '{}'", task.getId(), task.getCategory());
                 } else {
                     log.warn("No worker pool found for category '{}'", task.getCategory());
@@ -67,23 +61,11 @@ public class TaskSchedulerService {
                 }
 
             } catch (Exception e) {
-                log.error("Ошибка при обработке задачи id={}: {}", task.getId(), e.getMessage(), e);
+                log.error("Ошибка выполнения задачи id = {}. Ошибка: {}", task.getId(), e.getMessage(), e);
                 handleFailure(task);
             }
         }
     }
-
-    private boolean tryLockTask(TaskEntity task) {
-        try {
-            task.setStatus(TaskStatus.RUNNING);
-            taskRepository.save(task); // Сработает только если никто не изменил `version`
-            return true;
-        } catch (ObjectOptimisticLockingFailureException ex) {
-            log.warn("Task {} уже обрабатывается другим обработчиком", task.getId());
-            return false;
-        }
-    }
-
 
     public void handleFailure(TaskEntity task) {
         int currentAttempts = task.getAttemptCount();
