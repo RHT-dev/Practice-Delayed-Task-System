@@ -17,7 +17,7 @@ public class WorkerPool {
         this.executor = Executors.newFixedThreadPool(threads);
     }
 
-    public void submit(TaskEntity task, Runnable onSuccess) {
+    public void submit(TaskEntity task, Runnable handleSuccess) {
         executor.submit(() -> {
             try {
                 AbstractTask impl = (AbstractTask) Class.forName(task.getTaskClassName())

@@ -3,21 +3,11 @@ package com.example.demo.scheduler;
 import com.example.demo.JDBC_TEMPLATE.DynamicTaskDao;
 import com.example.demo.entityDB.TaskEntity;
 import com.example.demo.entityDB.TaskStatus;
-import com.example.demo.repositoryDataJPA.TaskRepository;
-import com.example.demo.worker.WorkerPool;
 import com.example.demo.worker.WorkerPoolRegistry;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
-
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Map;
 
 @Service
 public class TaskSchedulerService {
@@ -26,9 +16,42 @@ public class TaskSchedulerService {
     private final WorkerPoolRegistry pools;
     private final DynamicTaskDao dao;
 
-    public void dispatch() {
-        pools.getCategori
+    public TaskSchedulerService(WorkerPoolRegistry pools, DynamicTaskDao dao) {
+        this.pools = pools;
+        this.dao = dao;
     }
+
+    public void dispatch() {
+        pools.getCategories().forEach(this::processCategory);
+    }
+
+    private void processCategory(String category) {
+        dao.findReadyTasks(category).forEach(task -> tryStart(task, category));
+    }
+
+    private void tryStart(TaskEntity task, String category) {
+        if (dao.updateStatus(task.getId(), category,
+                TaskStatus.CONSIDERED, TaskStatus.RUNNING) == 0)
+            return;
+
+        try {
+            pools.getPool(category).submit(task, () -> handleSuccess(task, category));
+            log.info("Task {} handed to pool '{}'", task.getId(), category);
+        } catch (Exception ex) {
+            handleFail(task, category, ex);
+        }
+    }
+
+    private void handleSuccess(TaskEntity task, String category) {
+        dao.finalStatus(task.getId(), category, TaskStatus.SUCCESS);
+    }
+
+    private void handleFail(TaskEntity task, String category, Exception e) {
+        log.error("Task {} FAILED: {} ", task.getId(), e.getMessage(), e);
+        // to do: политику повторов реализовать тут
+        dao.finalStatus(task.getId(), category, TaskStatus.FAILED);
+    }
+
 }
 
 

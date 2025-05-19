@@ -15,7 +15,6 @@ import java.util.List;
 import java.util.Locale;
 
 @Service
-// @RequiredArgsConstructor
 public class DynamicTaskDao {
     private final JdbcTemplate jdbc;
     private static final String BASE_DDL =
@@ -34,6 +33,10 @@ public class DynamicTaskDao {
                     ) ENGINE=InnoDB
             """;
 
+    public DynamicTaskDao(JdbcTemplate jdbc) {
+        this.jdbc = jdbc;
+    }
+
     private String table(String category) {
         return "task_category_" + category.toLowerCase(Locale.ROOT);
     }
@@ -45,12 +48,12 @@ public class DynamicTaskDao {
 
     public long save(TaskEntity task) {
         ensureTable(task.getCategory());
-        var sql = """
-                INSERT INTO %s (task_class_name, params_json, retry_params_json, retry_type,
-                scheduled_time, attempt_count, max_attempts, status, version)
-                
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-                """.formatted(table(task.getCategory()));
+        String sql = """
+            INSERT INTO %s (task_class_name, params_json, retry_params_json, retry_type,
+                            scheduled_time, attempt_count, max_attempts, status, version)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """.formatted(table(task.getCategory()));
+
 
         KeyHolder keyHolder = new GeneratedKeyHolder();
         jdbc.update(con -> {
@@ -83,15 +86,22 @@ public class DynamicTaskDao {
                 Timestamp.valueOf(LocalDateTime.now()));
     }
 
-    public int updateStatus(long id, String category, TaskStatus expectedStatus, TaskStatus newStatus) {
+    public TaskStatus getStatus(long id, String category) {
         ensureTable(category);
-
-        var sql = """
-                UPDATE %s SET status = ? WHERE id = ? AND status = ?
-                """.formatted(table(category));
-
-        return jdbc.update(sql, newStatus.name(), expectedStatus.name());
+        return jdbc.queryForObject(
+                "SELECT status FROM %s WHERE id=?".formatted(table(category)),
+                (rs, n) -> TaskStatus.valueOf(rs.getString(1)),
+                id);
     }
+
+    public int updateStatus(long id, String category, TaskStatus expected, TaskStatus next) {
+        ensureTable(category);
+        String sql = """
+            UPDATE %s SET status=? WHERE id=? AND status=?
+            """.formatted(table(category));
+        return jdbc.update(sql, next.name(), id, expected.name());
+    }
+
 
     public void finalStatus(long id, String category, TaskStatus status) {
         var sql = """

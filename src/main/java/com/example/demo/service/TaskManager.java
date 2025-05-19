@@ -1,70 +1,42 @@
 package com.example.demo.service;
 
+import com.example.demo.JDBC_TEMPLATE.DynamicTaskDao;
 import com.example.demo.entityDB.TaskEntity;
 import com.example.demo.entityDB.TaskStatus;
-import com.example.demo.repositoryDataJPA.TaskRepository;
 import com.example.demo.worker.WorkerPoolRegistry;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.Optional;
 
 @Service
 public class TaskManager {
 
-    private final TaskRepository taskRepository;
-    private final WorkerPoolRegistry workerPoolRegistry;
+    private final DynamicTaskDao dao;
+    private final WorkerPoolRegistry pools;
 
-    public TaskManager(TaskRepository taskRepository, WorkerPoolRegistry workerPoolRegistry) {
-        this.taskRepository = taskRepository;
-        this.workerPoolRegistry = workerPoolRegistry;
+    public TaskManager(DynamicTaskDao dao, WorkerPoolRegistry pools) {
+        this.dao = dao;
+        this.pools = pools;
     }
 
-    @Transactional
-    public Long createAndScheduleTask(TaskEntity task) {
+    public long createAndSchedule(TaskEntity task) {
         task.setStatus(TaskStatus.CONSIDERED);
         task.setAttemptCount(0);
         if (task.getScheduledTime() == null) {
             task.setScheduledTime(LocalDateTime.now());
         }
-        taskRepository.save(task);
-        scheduleTask(task);
-        return task.getId();
+        long id = dao.save(task);
+        task.setId(id);
+        pools.getPool(task.getCategory()).submit(task, () -> {});
+        return id;
     }
 
-    @Transactional
-    public void cancelTask(Long taskID) {
-        Optional<TaskEntity> optionalTask = taskRepository.findById(taskID);
-        if (optionalTask.isPresent()) {
-            TaskEntity task = optionalTask.get();
-            if (task.getStatus() == TaskStatus.CONSIDERED || task.getStatus() == TaskStatus.FAILED) {
-                taskRepository.updateStatus(taskID, task.getStatus(), TaskStatus.CANCELED);
-            }
-        }
+    public boolean cancel(long id, String category) {
+        return dao.updateStatus(id, category,
+                TaskStatus.CONSIDERED, TaskStatus.CANCELED) == 1;
     }
 
-    @Transactional
-    public TaskStatus getTaskStatus(Long taskID) {
-        return taskRepository.findById(taskID)
-                .map(TaskEntity::getStatus)
-                .orElse(null);
-    }
-
-    @Transactional
-    public void scheduleTask(TaskEntity task) {
-        var pool = workerPoolRegistry.getPool(task.getCategory());
-        if (pool != null) {
-            pool.submit(task);
-        }
-        else {
-            throw new IllegalStateException("Pool does not exist");
-        }
-    }
-
-    public void init() {
-        if (!workerPoolRegistry.hasPool("default")) {
-            workerPoolRegistry.registerPool("default", 4);
-        }
+    public TaskStatus getStatus(long id, String category) {
+        return dao.getStatus(id, category);
     }
 }

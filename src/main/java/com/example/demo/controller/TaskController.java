@@ -1,7 +1,7 @@
 package com.example.demo.controller;
 
+import com.example.demo.TaskRequest;
 import com.example.demo.service.TaskManager;
-import com.example.demo.entityDB.TaskEntity;
 import com.example.demo.entityDB.TaskStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -19,23 +19,22 @@ public class TaskController {
     }
 
     @PostMapping
-    public ResponseEntity<Long> createTask(@RequestBody TaskEntity task) {
-        Long taskId = taskManager.createAndScheduleTask(task);
+    public ResponseEntity<Long> createTask(@RequestBody TaskRequest dto) {
+        Long taskId = taskManager.createAndSchedule(dto.toEntity());
         return ResponseEntity.ok(taskId);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> cancelTask(@PathVariable Long id) {
-        taskManager.cancelTask(id);
-        return ResponseEntity.noContent().build();
+    public ResponseEntity<Void>     cancelTask(@PathVariable Long id,
+                                           @RequestParam String category) {
+        boolean isOk = taskManager.cancel(id, category);
+        return isOk ? ResponseEntity.noContent().build() : ResponseEntity.notFound().build();
     }
 
     @GetMapping("/{id}/status")
-    public ResponseEntity<TaskStatus> getTaskStatus(@PathVariable Long id) {
-        TaskStatus status = taskManager.getTaskStatus(id);
-        if (status == null) {
-            return ResponseEntity.notFound().build();
-        }
-        return ResponseEntity.ok(status);
+    public ResponseEntity<TaskStatus> statusTask(@PathVariable Long id,
+                                                    @RequestParam String category) {
+        TaskStatus status = taskManager.getStatus(id, category);
+        return status == null ? ResponseEntity.notFound().build() : ResponseEntity.ok(status);
     }
 }
