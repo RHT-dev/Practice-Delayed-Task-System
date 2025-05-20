@@ -7,6 +7,7 @@ import com.example.demo.worker.WorkerPoolRegistry;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.Locale;
 
 @Service
 public class TaskManager {
@@ -28,7 +29,7 @@ public class TaskManager {
         long id = dao.save(task);
         task.setId(id);
 
-        pools.getPool(task.getCategory());
+        pools.getPool(task.getCategory().toLowerCase(Locale.ROOT));
 
         return id;
     }

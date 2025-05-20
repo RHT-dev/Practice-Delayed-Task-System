@@ -2,9 +2,11 @@ package com.example.demo.repository;
 
 import com.example.demo.entity.TaskEntity;
 import com.example.demo.entity.TaskStatus;
+import jakarta.transaction.Transactional;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
+import org.springframework.scheduling.config.Task;
 import org.springframework.stereotype.Service;
 
 import java.sql.PreparedStatement;
@@ -13,6 +15,7 @@ import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Locale;
+import java.util.Optional;
 
 @Service
 public class DynamicTaskDao {
@@ -73,7 +76,40 @@ public class DynamicTaskDao {
         return keyHolder.getKey().longValue();
     }
 
-    public List<TaskEntity> findReadyTasks(String category) {
+    @Transactional
+    public Optional<TaskEntity> fetchReadyTask(String category) {
+        ensureTable(category);
+
+        String selectIdSql = """
+        SELECT id FROM %s
+        WHERE status = 'CONSIDERED' AND scheduled_time <= ?
+        ORDER BY scheduled_time ASC
+        LIMIT 1
+        FOR UPDATE
+    """.formatted(table(category));
+
+        List<Long> ids = jdbc.queryForList(selectIdSql, Long.class, Timestamp.valueOf(LocalDateTime.now()));
+
+        if (ids.isEmpty()) return Optional.empty();
+
+        long id = ids.get(0);
+
+        String updateSql = """
+        UPDATE %s SET status = ? WHERE id = ?
+    """.formatted(table(category));
+        jdbc.update(updateSql, TaskStatus.RUNNING.name(), id);
+
+        String fetchSql = """
+        SELECT * FROM %s WHERE id = ?
+    """.formatted(table(category));
+
+        TaskEntity task = jdbc.queryForObject(fetchSql, (rs, n) -> TaskEntity.fromRs(rs), id);
+        return Optional.of(task);
+    }
+
+
+
+    /*public List<TaskEntity> findReadyTasks(String category) {
         ensureTable(category);
 
         var sql = """
@@ -84,7 +120,7 @@ public class DynamicTaskDao {
         return jdbc.query(sql,
                 (rs, n) -> TaskEntity.fromRs(rs),
                 Timestamp.valueOf(LocalDateTime.now()));
-    }
+    }*/
 
     public TaskStatus getStatus(long id, String category) {
         ensureTable(category);

@@ -13,6 +13,9 @@
     import org.springframework.scheduling.annotation.Scheduled;
     import org.springframework.stereotype.Service;
 
+    import java.util.Locale;
+    import java.util.Optional;
+
     @Service
     public class TaskSchedulerService {
 
@@ -42,11 +45,27 @@
         }
 
         private void processCategory(String category) {
-            var tasks = dao.findReadyTasks(category);
-            log.info("Found {} ready tasks in category '{}'", tasks.size(), category);
-            tasks.forEach(task -> tryStart(task, category));
-        }
+            while (true) {
+                Optional<TaskEntity> optionalTask = dao.fetchReadyTask(category);
+                if (optionalTask.isEmpty()) break;
 
+                TaskEntity task = optionalTask.get();
+                task.setStatus(TaskStatus.RUNNING);
+                log.info(">>> TASK STATUS: {}", task.getStatus());
+
+                tryStart(task, category);
+
+                try {
+                    pools.getPool(category.toLowerCase(Locale.ROOT)).submit(task,
+                            () -> handleSuccess(task, category),
+                            ex -> handleFail(task, category, ex)
+                    );
+                    log.info("Task {} handed to pool '{}'", task.getId(), category);
+                } catch (Exception ex) {
+                    handleFail(task, category, ex);
+                }
+            }
+        }
 
         private void tryStart(TaskEntity task, String category) {
             if (dao.updateStatus(task.getId(), category,
@@ -54,9 +73,10 @@
                 return;
 
             task.setStatus(TaskStatus.RUNNING);
+            log.info(">>> TASK STATUS: {}", task.getStatus());
 
             try {
-                pools.getPool(category).submit(task,
+                pools.getPool(category.toLowerCase(Locale.ROOT)).submit(task,
                         () -> handleSuccess(task, category),
                         ex -> handleFail(task, category, ex)
                 );
