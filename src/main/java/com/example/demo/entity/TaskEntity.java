@@ -54,7 +54,7 @@ public class TaskEntity {
     }
 
     private static String extractCategory(String table) {
-        return table.replaceFirst("^task_category_", "");
+        return table.replaceFirst("^task_category2_", "");
     }
 
 

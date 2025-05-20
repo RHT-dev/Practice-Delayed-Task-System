@@ -27,7 +27,9 @@ public class TaskManager {
         }
         long id = dao.save(task);
         task.setId(id);
-        pools.getPool(task.getCategory()).submit(task, () -> {});
+
+        pools.getPool(task.getCategory());
+
         return id;
     }
 

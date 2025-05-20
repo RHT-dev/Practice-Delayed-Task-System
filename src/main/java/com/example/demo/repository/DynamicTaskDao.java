@@ -28,7 +28,7 @@ public class DynamicTaskDao {
                         scheduled_time  TIMESTAMP      NOT NULL,
                         attempt_count   INT            NOT NULL,
                         max_attempts  INT            NOT NULL,
-                        status        ENUM('CONSIDERED','PROCESSING','SUCCESS','FAILED','CANCELED') NOT NULL,
+                        status         VARCHAR(100)     NOT NULL,
                         version       BIGINT         NOT NULL
                     ) ENGINE=InnoDB
             """;
@@ -38,7 +38,7 @@ public class DynamicTaskDao {
     }
 
     private String table(String category) {
-        return "task_category_" + category.toLowerCase(Locale.ROOT);
+        return "task_category2_" + category.toLowerCase(Locale.ROOT);
     }
 
     private void ensureTable(String category) {
@@ -109,4 +109,35 @@ public class DynamicTaskDao {
                 """.formatted(table(category));
         jdbc.update(sql, status.name(), id);
     }
+
+    public void updateForRetry(TaskEntity task, String category) {
+        ensureTable(category);
+        var sql = """
+            UPDATE %s
+            SET scheduled_time = ?, attempt_count = ?, status = ?
+            WHERE id = ?
+            """.formatted(table(category));
+        jdbc.update(sql,
+                Timestamp.valueOf(task.getScheduledTime()),
+                task.getAttemptCount(),
+                task.getStatus().name(),
+                task.getId());
+    }
+
+
+    public List<String> getAllCategories() {
+        String sql = """
+        SELECT table_name
+        FROM information_schema.tables
+        WHERE table_schema = DATABASE()
+          AND table_name LIKE 'task_category2_%'
+        """;
+
+        List<String> tables = jdbc.queryForList(sql, String.class);
+
+        return tables.stream()
+                .map(name -> name.substring("task_category2_".length()))
+                .toList();
+    }
+
 }

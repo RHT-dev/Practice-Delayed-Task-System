@@ -11,5 +11,6 @@ public class SomeTestingTask implements AbstractTask {
     @Override
     public void execute(Map<String, Object> params) {
         log.info("SomeTestingTask выполняется с параметрами: {}", params);
+        System.out.println("\"SomeTestingTask выполняется с параметрами");
     }
 }

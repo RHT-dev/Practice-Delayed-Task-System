@@ -17,7 +17,7 @@ public class WorkerPool {
         this.executor = Executors.newFixedThreadPool(threads);
     }
 
-    public void submit(TaskEntity task, Runnable handleSuccess) {
+    public void submit(TaskEntity task, Runnable handleSuccess, java.util.function.Consumer<Exception> handleFail) {
         executor.submit(() -> {
             try {
                 AbstractTask impl = (AbstractTask) Class.forName(task.getTaskClassName())
@@ -27,12 +27,14 @@ public class WorkerPool {
                         .readValue(task.getParamsJSON(), new TypeReference<>() {});
 
                 impl.execute(params);
-            }
-            catch (Exception e) {
-                throw new RuntimeException(e);
+
+                handleSuccess.run();
+            } catch (Exception e) {
+                handleFail.accept(e);
             }
         });
     }
+
 
     public void shutdown() {
         executor.shutdown();
