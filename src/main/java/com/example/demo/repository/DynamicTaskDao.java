@@ -1,7 +1,7 @@
-package com.example.demo.JDBC_TEMPLATE;
+package com.example.demo.repository;
 
-import com.example.demo.entityDB.TaskEntity;
-import com.example.demo.entityDB.TaskStatus;
+import com.example.demo.entity.TaskEntity;
+import com.example.demo.entity.TaskStatus;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;

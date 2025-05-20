@@ -1,8 +1,8 @@
 package com.example.demo.scheduler;
 
-import com.example.demo.JDBC_TEMPLATE.DynamicTaskDao;
-import com.example.demo.entityDB.TaskEntity;
-import com.example.demo.entityDB.TaskStatus;
+import com.example.demo.repository.DynamicTaskDao;
+import com.example.demo.entity.TaskEntity;
+import com.example.demo.entity.TaskStatus;
 import com.example.demo.worker.WorkerPoolRegistry;
 
 import org.slf4j.Logger;

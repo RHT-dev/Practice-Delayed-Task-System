@@ -1,4 +1,4 @@
-package com.example.demo.retryPolicy;
+package com.example.demo.retry;
 
 public class ExponentRetryPolicy implements RetryPolicy {
     private final double exponent;

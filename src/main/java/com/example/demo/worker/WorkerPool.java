@@ -1,6 +1,6 @@
 package com.example.demo.worker;
 
-import com.example.demo.entityDB.TaskEntity;
+import com.example.demo.entity.TaskEntity;
 import com.example.demo.task.AbstractTask;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;

@@ -1,4 +1,4 @@
-package com.example.demo.entityDB;
+package com.example.demo.entity;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;

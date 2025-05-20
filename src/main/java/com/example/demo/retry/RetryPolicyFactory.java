@@ -1,7 +1,7 @@
-package com.example.demo.retryPolicy;
+package com.example.demo.retry;
 
-import com.example.demo.entityDB.RetryType;
-import com.example.demo.entityDB.TaskEntity;
+import com.example.demo.entity.RetryType;
+import com.example.demo.entity.TaskEntity;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 

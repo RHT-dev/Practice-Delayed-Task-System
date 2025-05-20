@@ -1,4 +1,4 @@
-package com.example.demo.retryPolicy;
+package com.example.demo.retry;
 
 public class ConstantRetryPolicy implements RetryPolicy {
     private final long delay;

@@ -1,4 +1,4 @@
-package com.example.demo.JDBC_TEMPLATE;
+package com.example.demo.repository;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

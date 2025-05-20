@@ -1,7 +1,7 @@
 package com.example.demo;
 
-import com.example.demo.entityDB.RetryType;
-import com.example.demo.entityDB.TaskEntity;
+import com.example.demo.entity.RetryType;
+import com.example.demo.entity.TaskEntity;
 
 import java.time.LocalDateTime;
 
