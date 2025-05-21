@@ -17,14 +17,16 @@ public class WorkerPool {
         this.executor = Executors.newFixedThreadPool(threads);
     }
 
-    public void submit(TaskEntity task, Runnable handleSuccess, java.util.function.Consumer<Exception> handleFail) {
+    public void submit(TaskEntity task, Runnable handleSuccess,
+                       java.util.function.Consumer<Exception> handleFail) {
         executor.submit(() -> {
             try {
                 AbstractTask impl = (AbstractTask) Class.forName(task.getTaskClassName())
                         .getDeclaredConstructor().newInstance();
 
                 Map<String, Object> params = new ObjectMapper()
-                        .readValue(task.getParamsJSON(), new TypeReference<>() {});
+                        .readValue(task.getParamsJSON(), new TypeReference<>() {
+                        });
 
                 impl.execute(params);
 
@@ -34,7 +36,6 @@ public class WorkerPool {
             }
         });
     }
-
 
     public void shutdown() {
         executor.shutdown();

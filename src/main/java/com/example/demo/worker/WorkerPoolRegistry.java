@@ -14,7 +14,8 @@ public class WorkerPoolRegistry {
     private final Map<String, WorkerPool> pools = new ConcurrentHashMap<>();
 
     public WorkerPool getPool(String category) {
-        return pools.computeIfAbsent(category.toLowerCase(Locale.ROOT), cat -> new WorkerPool(4)); // дефолт 4 потока
+        return pools.computeIfAbsent(category.toLowerCase(Locale.ROOT),
+                cat -> new WorkerPool(4)); // "классическое" значение в 4 потока
     }
 
     public void registerPool(String category, int threads) {

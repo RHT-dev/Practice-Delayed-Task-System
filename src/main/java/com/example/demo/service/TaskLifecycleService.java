@@ -1,28 +1,32 @@
 package com.example.demo.service;
 
-import com.example.demo.repository.DynamicTaskDao;
+import com.example.demo.repository.DynamicTaskTableDao;
 import com.example.demo.entity.TaskEntity;
 import com.example.demo.entity.TaskStatus;
 import com.example.demo.worker.WorkerPoolRegistry;
+
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.Locale;
 
 @Service
-public class TaskManager {
+public class TaskLifecycleService {
 
-    private final DynamicTaskDao dao;
+    private final DynamicTaskTableDao dao;
     private final WorkerPoolRegistry pools;
 
-    public TaskManager(DynamicTaskDao dao, WorkerPoolRegistry pools) {
+    public TaskLifecycleService(DynamicTaskTableDao dao, WorkerPoolRegistry pools) {
         this.dao = dao;
         this.pools = pools;
     }
 
-    public long createAndSchedule(TaskEntity task) {
+    public long create(TaskEntity task) {
         task.setStatus(TaskStatus.CONSIDERED);
         task.setAttemptCount(0);
+        if (task.getMaxAttempts() <= 0) {
+            task.setMaxAttempts(1);
+        }
         if (task.getScheduledTime() == null) {
             task.setScheduledTime(LocalDateTime.now());
         }

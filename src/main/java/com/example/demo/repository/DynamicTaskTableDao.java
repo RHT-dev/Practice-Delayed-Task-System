@@ -3,10 +3,10 @@ package com.example.demo.repository;
 import com.example.demo.entity.TaskEntity;
 import com.example.demo.entity.TaskStatus;
 import jakarta.transaction.Transactional;
+
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
-import org.springframework.scheduling.config.Task;
 import org.springframework.stereotype.Service;
 
 import java.sql.PreparedStatement;
@@ -18,7 +18,7 @@ import java.util.Locale;
 import java.util.Optional;
 
 @Service
-public class DynamicTaskDao {
+public class DynamicTaskTableDao {
     private final JdbcTemplate jdbc;
     private static final String BASE_DDL =
             """
@@ -36,18 +36,17 @@ public class DynamicTaskDao {
                     ) ENGINE=InnoDB
             """;
 
-    public DynamicTaskDao(JdbcTemplate jdbc) {
+    public DynamicTaskTableDao(JdbcTemplate jdbc) {
         this.jdbc = jdbc;
     }
 
     private String table(String category) {
-        return "task_category2_" + category.toLowerCase(Locale.ROOT);
+        return "delayed_task_category_" + category.toLowerCase(Locale.ROOT);
     }
 
     private void ensureTable(String category) {
         jdbc.execute(BASE_DDL.formatted(table(category)));
     }
-
 
     public long save(TaskEntity task) {
         ensureTable(task.getCategory());
@@ -56,7 +55,6 @@ public class DynamicTaskDao {
                             scheduled_time, attempt_count, max_attempts, status, version)
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
             """.formatted(table(task.getCategory()));
-
 
         KeyHolder keyHolder = new GeneratedKeyHolder();
         jdbc.update(con -> {
@@ -72,14 +70,12 @@ public class DynamicTaskDao {
             ps.setLong(9, 0);
             return ps;
         }, keyHolder);
-
         return keyHolder.getKey().longValue();
     }
 
     @Transactional
     public Optional<TaskEntity> fetchReadyTask(String category) {
         ensureTable(category);
-
         String selectIdSql = """
         SELECT id FROM %s
         WHERE status = 'CONSIDERED' AND scheduled_time <= ?
@@ -89,7 +85,6 @@ public class DynamicTaskDao {
     """.formatted(table(category));
 
         List<Long> ids = jdbc.queryForList(selectIdSql, Long.class, Timestamp.valueOf(LocalDateTime.now()));
-
         if (ids.isEmpty()) return Optional.empty();
 
         long id = ids.get(0);
@@ -107,21 +102,6 @@ public class DynamicTaskDao {
         return Optional.of(task);
     }
 
-
-
-    /*public List<TaskEntity> findReadyTasks(String category) {
-        ensureTable(category);
-
-        var sql = """
-                SELECT * from %s
-                WHERE status = 'CONSIDERED' AND scheduled_time <= ?
-                """.formatted(table(category));
-
-        return jdbc.query(sql,
-                (rs, n) -> TaskEntity.fromRs(rs),
-                Timestamp.valueOf(LocalDateTime.now()));
-    }*/
-
     public TaskStatus getStatus(long id, String category) {
         ensureTable(category);
         return jdbc.queryForObject(
@@ -137,7 +117,6 @@ public class DynamicTaskDao {
             """.formatted(table(category));
         return jdbc.update(sql, next.name(), id, expected.name());
     }
-
 
     public void finalStatus(long id, String category, TaskStatus status) {
         var sql = """
@@ -160,19 +139,18 @@ public class DynamicTaskDao {
                 task.getId());
     }
 
-
     public List<String> getAllCategories() {
         String sql = """
         SELECT table_name
         FROM information_schema.tables
         WHERE table_schema = DATABASE()
-          AND table_name LIKE 'task_category2_%'
+          AND table_name LIKE 'delayed_task_category_%'
         """;
 
         List<String> tables = jdbc.queryForList(sql, String.class);
 
         return tables.stream()
-                .map(name -> name.substring("task_category2_".length()))
+                .map(name -> name.substring("delayed_task_category_".length()))
                 .toList();
     }
 

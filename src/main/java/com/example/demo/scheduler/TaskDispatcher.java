@@ -1,15 +1,16 @@
     package com.example.demo.scheduler;
 
-    import com.example.demo.repository.DynamicTaskDao;
+    import com.example.demo.repository.DynamicTaskTableDao;
     import com.example.demo.entity.TaskEntity;
     import com.example.demo.entity.TaskStatus;
     import com.example.demo.retry.RetryPolicy;
-    import com.example.demo.retry.RetryPolicyFactory;
+    import com.example.demo.retry.RetryPolicyResolver;
     import com.example.demo.worker.WorkerPoolRegistry;
 
     import jakarta.annotation.PostConstruct;
     import org.slf4j.Logger;
     import org.slf4j.LoggerFactory;
+
     import org.springframework.scheduling.annotation.Scheduled;
     import org.springframework.stereotype.Service;
 
@@ -17,18 +18,18 @@
     import java.util.Optional;
 
     @Service
-    public class TaskSchedulerService {
+    public class TaskDispatcher {
 
-        private static final Logger log = LoggerFactory.getLogger(TaskSchedulerService.class);
+        private static final Logger log = LoggerFactory.getLogger(TaskDispatcher.class);
         private final WorkerPoolRegistry pools;
-        private final DynamicTaskDao dao;
+        private final DynamicTaskTableDao dao;
 
-        public TaskSchedulerService(WorkerPoolRegistry pools, DynamicTaskDao dao) {
+        public TaskDispatcher(WorkerPoolRegistry pools, DynamicTaskTableDao dao) {
             this.pools = pools;
             this.dao = dao;
         }
 
-        @Scheduled(fixedDelay = 20000)
+        @Scheduled(fixedDelay = 5000)
         public void dispatch() {
             log.info(">>> DISPATCH TRIGGERED");
             var categories = pools.getCategories();
@@ -40,8 +41,6 @@
         public void init() {
             var categories = dao.getAllCategories();
             categories.forEach(cat -> pools.registerPool(cat, 4));
-
-            log.info("Registered categories: {}", categories);
         }
 
         private void processCategory(String category) {
@@ -50,6 +49,7 @@
                 if (optionalTask.isEmpty()) break;
 
                 TaskEntity task = optionalTask.get();
+
                 task.setStatus(TaskStatus.RUNNING);
                 log.info(">>> TASK STATUS: {}", task.getStatus());
 
@@ -86,15 +86,11 @@
             }
         }
 
-
-
         private void handleSuccess(TaskEntity task, String category) {
             dao.finalStatus(task.getId(), category, TaskStatus.SUCCESS);
         }
 
         private void handleFail(TaskEntity task, String category, Exception e) {
-            log.error("Task {} FAILED: {}", task.getId(), e.getMessage(), e);
-
 
             int attempt = task.getAttemptCount() + 1;
 
@@ -103,7 +99,7 @@
                 return;
             }
 
-            RetryPolicy retryPolicy = RetryPolicyFactory.createRetryPolicy(task);
+            RetryPolicy retryPolicy = RetryPolicyResolver.createRetryPolicy(task);
             if (retryPolicy == null) {
                 dao.finalStatus(task.getId(), category, TaskStatus.FAILED);
                 return;
@@ -115,10 +111,8 @@
             task.setStatus(TaskStatus.CONSIDERED);
 
             dao.updateForRetry(task, category);
-            log.info("Retrying task {} in {}ms (attempt {})", task.getId(), delayMillis, attempt);
-            log.info("Updated task {} for retry, next scheduled time: {}, attempt: {}",
+            log.info("Retrying task {} for retry, next scheduled time: {}, attempt: {}",
                     task.getId(), task.getScheduledTime(), attempt);
-
         }
 
 

@@ -5,12 +5,12 @@ import com.example.demo.entity.TaskEntity;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-public class RetryPolicyFactory {
+public class RetryPolicyResolver {
 
     private static final ObjectMapper objectMapper = new ObjectMapper();
 
     public static RetryPolicy createRetryPolicy(TaskEntity task) {
-        if (task.getMaxAttempts() <= 1) {
+        if (task.getMaxAttempts() <= 1 || task.getRetryType() == null) {
             return null;
         }
 
@@ -34,7 +34,7 @@ public class RetryPolicyFactory {
             }
         }
         catch (Exception e) {
-            throw new RuntimeException("Ошибка в политике повторов: " + e.getMessage(), e);
+            throw new RuntimeException("ERROR RETRY POLICY: " + e.getMessage(), e);
         }
 
         return null;

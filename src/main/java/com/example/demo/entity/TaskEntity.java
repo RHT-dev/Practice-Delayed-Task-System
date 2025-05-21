@@ -9,7 +9,6 @@ import jakarta.persistence.*;
 @Table(name = "tasks")
 public class TaskEntity {
 
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -22,10 +21,11 @@ public class TaskEntity {
     private LocalDateTime scheduledTime;
 
     private int attemptCount;
-    private int maxAttempts;
 
+    // значения по умолчанию
+    private int maxAttempts = 1;
     @Enumerated(EnumType.STRING)
-    private RetryType retryType;
+    private RetryType retryType = null;
 
     @Enumerated(EnumType.STRING)
     private TaskStatus status;
@@ -41,7 +41,7 @@ public class TaskEntity {
         TaskEntity task = new TaskEntity();
         task.setId(rs.getLong("id"));
         task.setTaskClassName(rs.getString("task_class_name"));
-        task.setCategory(extractCategory(rs.getMetaData().getTableName(1)));   // task_category_email → email
+        task.setCategory(extractCategory(rs.getMetaData().getTableName(1)));
         task.setParamsJSON(rs.getString("params_json"));
         task.setRetryParamsJSON(rs.getString("retry_params_json"));
         task.setRetryType(RetryType.valueOf(rs.getString("retry_type")));
@@ -54,11 +54,10 @@ public class TaskEntity {
     }
 
     private static String extractCategory(String table) {
-        return table.replaceFirst("^task_category2_", "");
+        return table.replaceFirst("^delayed_task_category__", "");
     }
 
-
-    // setters and getters
+    // сеттеры/геттеры
     public long getVersion() {
         return version;
     }
