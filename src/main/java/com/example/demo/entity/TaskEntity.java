@@ -37,6 +37,7 @@ public class TaskEntity {
     @Column(name = "version")
     private long version;
 
+
     public static TaskEntity fromRs(ResultSet rs) throws SQLException {
         TaskEntity task = new TaskEntity();
         task.setId(rs.getLong("id"));
@@ -54,7 +55,7 @@ public class TaskEntity {
     }
 
     private static String extractCategory(String table) {
-        return table.replaceFirst("^delayed_task_category__", "");
+        return table.replaceFirst("^task_category_", "");
     }
 
     // сеттеры/геттеры

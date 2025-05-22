@@ -41,7 +41,7 @@ public class DynamicTaskTableDao {
     }
 
     private String table(String category) {
-        return "delayed_task_category_" + category.toLowerCase(Locale.ROOT);
+        return "task_category_" + category.toLowerCase(Locale.ROOT);
     }
 
     private void ensureTable(String category) {
@@ -144,13 +144,13 @@ public class DynamicTaskTableDao {
         SELECT table_name
         FROM information_schema.tables
         WHERE table_schema = DATABASE()
-          AND table_name LIKE 'delayed_task_category_%'
+          AND table_name LIKE 'task_category_%'
         """;
 
         List<String> tables = jdbc.queryForList(sql, String.class);
 
         return tables.stream()
-                .map(name -> name.substring("delayed_task_category_".length()))
+                .map(name -> name.substring("task_category_".length()))
                 .toList();
     }
 
