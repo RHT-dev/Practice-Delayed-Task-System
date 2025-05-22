@@ -31,8 +31,7 @@ public class DynamicTaskTableDao {
                         scheduled_time  TIMESTAMP      NOT NULL,
                         attempt_count   INT            NOT NULL,
                         max_attempts  INT            NOT NULL,
-                        status         VARCHAR(100)     NOT NULL,
-                        version       BIGINT         NOT NULL
+                        status         VARCHAR(100)     NOT NULL
                     ) ENGINE=InnoDB
             """;
 
@@ -52,8 +51,8 @@ public class DynamicTaskTableDao {
         ensureTable(task.getCategory());
         String sql = """
             INSERT INTO %s (task_class_name, params_json, retry_params_json, retry_type,
-                            scheduled_time, attempt_count, max_attempts, status, version)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+                            scheduled_time, attempt_count, max_attempts, status)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
             """.formatted(table(task.getCategory()));
 
         KeyHolder keyHolder = new GeneratedKeyHolder();
@@ -67,7 +66,6 @@ public class DynamicTaskTableDao {
             ps.setInt(6, 0);
             ps.setInt(7, task.getMaxAttempts());
             ps.setString(8, TaskStatus.CONSIDERED.name());
-            ps.setLong(9, 0);
             return ps;
         }, keyHolder);
         return keyHolder.getKey().longValue();

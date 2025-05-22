@@ -33,11 +33,6 @@ public class TaskEntity {
     @Column(columnDefinition = "TEXT")
     private String retryParamsJSON;
 
-    @Version
-    @Column(name = "version")
-    private long version;
-
-
     public static TaskEntity fromRs(ResultSet rs) throws SQLException {
         TaskEntity task = new TaskEntity();
         task.setId(rs.getLong("id"));
@@ -50,7 +45,6 @@ public class TaskEntity {
         task.setAttemptCount(rs.getInt("attempt_count"));
         task.setMaxAttempts(rs.getInt("max_attempts"));
         task.setStatus(TaskStatus.valueOf(rs.getString("status")));
-        task.setVersion(rs.getLong("version"));
         return task;
     }
 
@@ -59,14 +53,6 @@ public class TaskEntity {
     }
 
     // сеттеры/геттеры
-    public long getVersion() {
-        return version;
-    }
-
-    public void setVersion(long version) {
-        this.version = version;
-    }
-
     public String getRetryParamsJSON() {
         return retryParamsJSON;
     }
