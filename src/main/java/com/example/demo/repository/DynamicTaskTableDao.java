@@ -27,7 +27,7 @@ public class DynamicTaskTableDao {
                         task_class_name    VARCHAR(255)   NOT NULL,
                         params_json   TEXT           NOT NULL,
                         retry_params_json    TEXT,
-                        retry_type    ENUM('CONSTANT','EXPONENT') NOT NULL,
+                        retry_type ENUM('NONE','CONSTANT','EXPONENT') DEFAULT 'NONE',
                         scheduled_time  TIMESTAMP      NOT NULL,
                         attempt_count   INT            NOT NULL,
                         max_attempts  INT            NOT NULL,
@@ -61,7 +61,7 @@ public class DynamicTaskTableDao {
             ps.setString(1, task.getTaskClassName());
             ps.setString(2, task.getParamsJSON());
             ps.setString(3, task.getRetryParamsJSON());
-            ps.setString(4, task.getRetryType().name());
+            ps.setString(4, task.getRetryType() != null ? task.getRetryType().name() : null);
             ps.setTimestamp(5, Timestamp.valueOf(task.getScheduledTime()));
             ps.setInt(6, 0);
             ps.setInt(7, task.getMaxAttempts());
@@ -151,5 +151,4 @@ public class DynamicTaskTableDao {
                 .map(name -> name.substring("task_category_".length()))
                 .toList();
     }
-
 }

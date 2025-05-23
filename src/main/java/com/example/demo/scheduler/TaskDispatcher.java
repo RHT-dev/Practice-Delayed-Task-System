@@ -96,12 +96,14 @@
 
             if (attempt > task.getMaxAttempts()) {
                 dao.finalStatus(task.getId(), category, TaskStatus.FAILED);
+                log.info("Task {} status: FAILED", task.getId());
                 return;
             }
 
             RetryPolicy retryPolicy = RetryPolicyResolver.createRetryPolicy(task);
             if (retryPolicy == null) {
                 dao.finalStatus(task.getId(), category, TaskStatus.FAILED);
+                log.info("Task {} status: FAILED", task.getId());
                 return;
             }
 

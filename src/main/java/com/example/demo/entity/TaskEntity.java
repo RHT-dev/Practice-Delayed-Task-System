@@ -25,7 +25,7 @@ public class TaskEntity {
     // значения по умолчанию
     private int maxAttempts = 1;
     @Enumerated(EnumType.STRING)
-    private RetryType retryType = null;
+    private RetryType retryType = RetryType.NONE;
 
     @Enumerated(EnumType.STRING)
     private TaskStatus status;

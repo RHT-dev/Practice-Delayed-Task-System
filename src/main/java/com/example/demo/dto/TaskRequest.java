@@ -6,7 +6,6 @@ import com.example.demo.entity.TaskEntity;
 import java.time.LocalDateTime;
 public class TaskRequest {
 
-
     private String taskClassName;
     private String category;
     private String paramsJSON;
@@ -78,7 +77,7 @@ public class TaskRequest {
         entity.setParamsJSON(paramsJSON);
         entity.setScheduledTime(scheduledTime);
         entity.setMaxAttempts(maxAttempts == null ? 1 : maxAttempts);
-        entity.setRetryType(retryType);
+        entity.setRetryType(retryType == null ? RetryType.NONE : retryType);
         entity.setRetryParamsJSON(retryParamsJSON);
         return entity;
     }

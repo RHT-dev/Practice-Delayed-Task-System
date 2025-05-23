@@ -10,17 +10,21 @@ public class RetryPolicyResolver {
     private static final ObjectMapper objectMapper = new ObjectMapper();
 
     public static RetryPolicy createRetryPolicy(TaskEntity task) {
-        if (task.getMaxAttempts() <= 1 || task.getRetryType() == null) {
+        if (task.getMaxAttempts() <= 1 || task.getRetryType() == null || task.getRetryType() == RetryType.NONE) {
             return null;
         }
 
         RetryType retryType = task.getRetryType();
-        if (retryType == null) {return null;}
+        if (retryType == null || task.getRetryType() == RetryType.NONE) {return null;}
 
         try {
             JsonNode jsonNode = objectMapper.readTree(task.getRetryParamsJSON());
 
             switch (retryType) {
+                case NONE -> {
+                    return null;
+                }
+
                 case CONSTANT -> {
                     long delay = jsonNode.get("delay").asLong();
                     return new ConstantRetryPolicy(delay);
