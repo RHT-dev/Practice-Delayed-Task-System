@@ -47,7 +47,7 @@
 
 1. Клонировать проект
 ```
-git clone https://github.com/yourusername/delayed-task-system.git
+git clone https://github.com/RHT-dev/Practice-Delayed-Task-System.git
 ```
 
 2. Установить все необходимые зависимости.
@@ -164,7 +164,7 @@ public class MyCustomTask extends AbstractTask {
 {
   "taskClassName": "com.example.demo.task.SampleTaskWithException",
   "paramsJSON": "{\"message\": \"Hi!\"}",
-  "category": "send_push2",
+  "category": "send_push",
   "maxAttempts": 3
 }
 ```
@@ -226,7 +226,7 @@ GET /tasks/1/status?category=send_push
 **Запрос:**
 
 ```http
-DELETE /tasks/42?category=send_push
+DELETE /tasks/1?category=send_push
 ```
 
 **Ответ:**
