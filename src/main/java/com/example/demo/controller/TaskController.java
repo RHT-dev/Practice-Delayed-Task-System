@@ -21,6 +21,9 @@ public class TaskController {
     @PostMapping
     public ResponseEntity<Long> createTask(@RequestBody TaskRequest dto) {
         Long id = taskLifecycleService.create(dto.toEntity());
+
+        taskLifecycleService.initCategoryPool(dto.getCategory());
+
         return ResponseEntity.ok(id);
     }
 
@@ -37,4 +40,11 @@ public class TaskController {
         TaskStatus status = taskLifecycleService.getStatus(id, category);
         return status == null ? ResponseEntity.notFound().build() : ResponseEntity.ok(status);
     }
+
+    @PostMapping("/init-pool")
+    public ResponseEntity<String> initPool(@RequestParam String category) {
+        taskLifecycleService.initCategoryPool(category);
+        return ResponseEntity.ok("Pool initialized for category: " + category);
+    }
+
 }

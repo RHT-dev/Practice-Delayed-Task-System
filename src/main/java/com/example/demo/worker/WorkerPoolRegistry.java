@@ -19,8 +19,13 @@ public class WorkerPoolRegistry {
     }
 
     public void registerPool(String category, int threads) {
-        pools.computeIfAbsent(category, c -> new WorkerPool(threads));
+        pools.computeIfAbsent(category.toLowerCase(Locale.ROOT), c -> new WorkerPool(threads));
     }
+
+    public void initPoolForCategory(String category) {
+        getPool(category.toLowerCase(Locale.ROOT));
+    }
+
 
     public Set<String> getCategories() {
         return pools.keySet();

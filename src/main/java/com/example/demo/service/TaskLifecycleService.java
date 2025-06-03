@@ -21,6 +21,10 @@ public class TaskLifecycleService {
         this.pools = pools;
     }
 
+    public void initCategoryPool(String category) {
+        pools.initPoolForCategory(category);
+    }
+
     public long create(TaskEntity task) {
         task.setStatus(TaskStatus.CONSIDERED);
         task.setAttemptCount(0);
@@ -33,7 +37,6 @@ public class TaskLifecycleService {
         long id = dao.save(task);
         task.setId(id);
 
-        pools.getPool(task.getCategory().toLowerCase(Locale.ROOT));
 
         return id;
     }

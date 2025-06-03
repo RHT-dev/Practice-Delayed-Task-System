@@ -40,7 +40,7 @@
         @PostConstruct
         public void init() {
             var categories = dao.getAllCategories();
-            categories.forEach(cat -> pools.registerPool(cat, 4));
+            categories.forEach(cat -> pools.registerPool(cat.toLowerCase(Locale.ROOT), 4));
         }
 
         private void processCategory(String category) {
@@ -54,16 +54,6 @@
                 log.info(">>> TASK STATUS: {}", task.getStatus());
 
                 tryStart(task, category);
-
-                try {
-                    pools.getPool(category.toLowerCase(Locale.ROOT)).submit(task,
-                            () -> handleSuccess(task, category),
-                            ex -> handleFail(task, category, ex)
-                    );
-                    log.info("Task {} handed to pool '{}'", task.getId(), category);
-                } catch (Exception ex) {
-                    handleFail(task, category, ex);
-                }
             }
         }
 
