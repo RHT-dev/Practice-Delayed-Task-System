@@ -149,7 +149,13 @@ public class TaskDispatcher {
             executor.shutdownNow();
         });
         log.info("All dispatchers shutdown complete.");
+    }
 
+
+    // для JMX
+    public int getQueueSize(String category) {
+        DelayQueue<DelayedTaskWrapper> queue = categoryQueues.get(category.toLowerCase());
+        return queue == null ? 0 : queue.size();
     }
 
 }
