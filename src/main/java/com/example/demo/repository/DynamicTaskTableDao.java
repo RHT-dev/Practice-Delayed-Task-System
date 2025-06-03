@@ -48,6 +48,7 @@ public class DynamicTaskTableDao {
     }
 
     public long save(TaskEntity task) {
+
         ensureTable(task.getCategory());
         String sql = """
             INSERT INTO %s (task_class_name, params_json, retry_params_json, retry_type,
@@ -151,4 +152,23 @@ public class DynamicTaskTableDao {
                 .map(name -> name.substring("task_category_".length()))
                 .toList();
     }
+
+    public TaskEntity getTaskById(long id, String category) {
+        ensureTable(category);
+        String sql = """
+        SELECT * FROM %s WHERE id = ?
+    """.formatted(table(category));
+        List<TaskEntity> list = jdbc.query(sql, (rs, n) -> TaskEntity.fromRs(rs), id);
+        return list.isEmpty() ? null : list.get(0);
+    }
+
+    public List<TaskEntity> fetchAllConsidered(String category) {
+        ensureTable(category);
+        String sql = """
+        SELECT * FROM %s
+        WHERE status = 'CONSIDERED'
+    """.formatted(table(category));
+        return jdbc.query(sql, (rs, n) -> TaskEntity.fromRs(rs));
+    }
+
 }

@@ -15,7 +15,7 @@ public class WorkerPoolRegistry {
 
     public WorkerPool getPool(String category) {
         return pools.computeIfAbsent(category.toLowerCase(Locale.ROOT),
-                cat -> new WorkerPool(4)); // "классическое" значение в 4 потока
+                cat -> new WorkerPool(4));
     }
 
     public void registerPool(String category, int threads) {
