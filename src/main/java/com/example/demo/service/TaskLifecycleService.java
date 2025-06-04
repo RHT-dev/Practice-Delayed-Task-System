@@ -8,7 +8,6 @@ import com.example.demo.worker.WorkerPoolRegistry;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.Locale;
 
 @Service
 public class TaskLifecycleService {
@@ -19,6 +18,10 @@ public class TaskLifecycleService {
     public TaskLifecycleService(DynamicTaskTableDao dao, WorkerPoolRegistry pools) {
         this.dao = dao;
         this.pools = pools;
+    }
+
+    public void initCategoryPool(String category) {
+        pools.initPoolForCategory(category);
     }
 
     public long create(TaskEntity task) {
@@ -33,7 +36,6 @@ public class TaskLifecycleService {
         long id = dao.save(task);
         task.setId(id);
 
-        pools.getPool(task.getCategory().toLowerCase(Locale.ROOT));
 
         return id;
     }
