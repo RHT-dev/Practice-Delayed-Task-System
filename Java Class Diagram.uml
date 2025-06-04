@@ -1,147 +1,166 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Diagram>
   <ID>JAVA</ID>
-  <OriginalElement>com.example.demo.config.JdbcConfig</OriginalElement>
+  <OriginalElement>com.example.demo.DelayedTaskApplication</OriginalElement>
   <nodes>
-    <node x="-315.6068378690339" y="2789.7658741822174">com.example.demo.entity.TaskStatus</node>
-    <node x="1566.0433449112422" y="3829.7658741822174">com.example.demo.task.SampleTaskWithException</node>
-    <node x="363.29764183448106" y="2931.953374182217">com.example.demo.config.JdbcConfig</node>
-    <node x="1566.0433449112422" y="3525.2658741822174">com.example.demo.task.AbstractTask</node>
-    <node x="1531.4066261612434" y="3024.7658741822174">com.example.demo.retry.ExponentRetryPolicy</node>
-    <node x="-309.1068378690339" y="3028.7658741822174">com.example.demo.entity.TaskEntity</node>
-    <node x="1364.4066261612431" y="3364.7658741822174">com.example.demo.retry.RetryPolicyResolver</node>
-    <node x="1363.4066261612431" y="3164.7658741822174">com.example.demo.retry.ConstantRetryPolicy</node>
-    <node x="747.297641834481" y="2789.7658741822174">com.example.demo.worker.WorkerPool</node>
-    <node x="646.297641834481" y="3991.0158741822174">com.example.demo.controller.TaskController</node>
-    <node x="-11.606837869033882" y="2789.7658741822174">com.example.demo.entity.RetryType</node>
-    <node x="1380.4066261612431" y="2860.2658741822174">com.example.demo.retry.RetryPolicy</node>
-    <node x="902.797641834481" y="3019.2658741822174">com.example.demo.worker.WorkerPoolRegistry</node>
-    <node x="1766.0433449112425" y="3689.7658741822174">com.example.demo.task.SampleTask</node>
-    <node x="934.297641834481" y="3689.7658741822174">com.example.demo.scheduler.TaskDispatcher</node>
-    <node x="-149.10683786903388" y="3873.7658741822174">com.example.demo.dto.TaskRequest</node>
-    <node x="318.79764183448106" y="3734.7658741822174">com.example.demo.service.TaskLifecycleService</node>
-    <node x="363.79764183448106" y="2789.7658741822174">com.example.demo.DelayedTaskApplication</node>
-    <node x="363.79764183448106" y="3244.2658741822174">com.example.demo.repository.DynamicTaskTableDao</node>
+    <node x="1236.659161816065" y="-141.0">com.example.demo.dto.TaskRequest</node>
+    <node x="810.5" y="-140.94209594412104">com.example.demo.entity.TaskEntity</node>
+    <node x="982.8710547147846" y="935.0">com.example.demo.controller.TaskController</node>
+    <node x="412.0" y="-247.0">com.example.demo.task.SampleTaskWithException</node>
+    <node x="273.7411641443539" y="101.5">com.example.demo.entity.TaskStatus</node>
+    <node x="828.0" y="-353.5">com.example.demo.entity.RetryType</node>
+    <node x="-268.5691268917345" y="934.5">com.example.demo.worker.WorkerPoolRegistry</node>
+    <node x="234.0" y="-353.5">com.example.demo.task.AbstractTask</node>
+    <node x="-265.49041769499416" y="-125.0">com.example.demo.retry.RetryPolicyResolver</node>
+    <node x="-318.5691268917345" y="1184.7339231664728">com.example.demo.worker.WorkerPool</node>
+    <node x="1257.7456530849822" y="556.4456623981373">com.example.demo.DelayedTaskApplication</node>
+    <node x="256.6533736903375" y="-3.0">com.example.demo.retry.RetryPolicy</node>
+    <node x="-201.49041769499416" y="-3.0">com.example.demo.retry.ExponentRetryPolicy</node>
+    <node x="-318.5691268917345" y="565.2660768335273">com.example.demo.scheduler.TaskDispatcher</node>
+    <node x="-250.06912689173453" y="109.5">com.example.demo.jmx.TaskDispatcherMBean</node>
+    <node x="246.6533736903375" y="-125.0">com.example.demo.retry.ConstantRetryPolicy</node>
+    <node x="56.0" y="-247.0">com.example.demo.task.SampleTask</node>
+    <node x="279.5" y="565.2660768335273">com.example.demo.repository.DynamicTaskTableDao</node>
+    <node x="1257.2456530849822" y="675.4572386495926">com.example.demo.config.JdbcConfig</node>
+    <node x="285.21543655413274" y="248.5643073341094">com.example.demo.scheduler.DelayedTaskWrapper</node>
+    <node x="-269.5691268917345" y="320.3745983701979">com.example.demo.jmx.TaskDispatcherMBeanImpl</node>
+    <node x="354.5" y="1050.379417927823">com.example.demo.service.TaskLifecycleService</node>
   </nodes>
   <notes />
   <edges>
     <edge source="com.example.demo.service.TaskLifecycleService" target="com.example.demo.worker.WorkerPoolRegistry" relationship="TO_ONE">
-      <point x="0.0" y="-83.5" />
-      <point x="603.297641834481" y="3681.3378741822175" />
-      <point x="1203.297641834481" y="3681.3378741822175" />
-      <point x="1203.297641834481" y="2998.2658741822174" />
-      <point x="973.047641834481" y="2998.2658741822174" />
-      <point x="-70.25" y="-99.0" />
+      <point x="-164.5" y="0.0" />
+      <point x="199.96543655413274" y="1133.379417927823" />
+      <point x="199.96543655413274" y="1033.0" />
+      <point x="157.0" y="0.0" />
     </edge>
     <edge source="com.example.demo.worker.WorkerPoolRegistry" target="com.example.demo.worker.WorkerPool" relationship="TO_MANY">
-      <point x="-70.25" y="-99.0" />
-      <point x="973.047641834481" y="2978.2658741822174" />
-      <point x="875.297641834481" y="2978.2658741822174" />
-      <point x="-128.0" y="68.5" />
+      <point x="0.0" y="98.5" />
+      <point x="-111.56912689173453" y="1184.7339231664728" />
+      <point x="0.0" y="-53.0" />
+    </edge>
+    <edge source="com.example.demo.jmx.TaskDispatcherMBeanImpl" target="com.example.demo.repository.DynamicTaskTableDao" relationship="TO_ONE">
+      <point x="158.0" y="0.0" />
+      <point x="164.5731548311991" y="403.8745983701979" />
+      <point x="164.5731548311991" y="484.5703376018626" />
+      <point x="519.0" y="484.5703376018626" />
+      <point x="0.0" y="-188.5" />
     </edge>
     <edge source="com.example.demo.task.SampleTask" target="com.example.demo.task.AbstractTask" relationship="REALIZATION">
-      <point x="0.0" y="-53.5" />
-      <point x="1934.0433449112425" y="3663.2658741822174" />
-      <point x="1734.0433449112422" y="3663.2658741822174" />
-      <point x="0.0" y="38.0" />
-    </edge>
-    <edge source="com.example.demo.retry.ExponentRetryPolicy" target="com.example.demo.retry.RetryPolicy" relationship="REALIZATION">
-      <point x="0.0" y="-53.5" />
-      <point x="1699.4066261612434" y="2998.2658741822174" />
-      <point x="1499.4066261612431" y="2998.2658741822174" />
-      <point x="0.0" y="38.0" />
+      <point x="166.0" y="-38.0" />
+      <point x="-12.0" y="38.0" />
     </edge>
     <edge source="com.example.demo.retry.RetryPolicyResolver" target="com.example.demo.retry.ExponentRetryPolicy" relationship="CREATE">
-      <point x="0.0" y="-53.5" />
-      <point x="1559.4066261612431" y="3298.2658741822174" />
-      <point x="1699.4066261612434" y="3298.2658741822174" />
-      <point x="0.0" y="53.5" />
+      <point x="0.0" y="38.0" />
+      <point x="0.0" y="-38.0" />
     </edge>
     <edge source="com.example.demo.retry.RetryPolicyResolver" target="com.example.demo.retry.ConstantRetryPolicy" relationship="CREATE">
-      <point x="0.0" y="-53.5" />
-      <point x="1559.4066261612431" y="3298.2658741822174" />
-      <point x="1499.4066261612431" y="3298.2658741822174" />
-      <point x="0.0" y="53.5" />
-    </edge>
-    <edge source="com.example.demo.scheduler.TaskDispatcher" target="com.example.demo.worker.WorkerPoolRegistry" relationship="TO_ONE">
-      <point x="36.762609132228135" y="-115.8299701822175" />
-      <point x="1240.0602509667092" y="3686.051904" />
-      <point x="1240.0070029667097" y="3686.051904" />
-      <point x="1240.0070029667097" y="2998.2658741822174" />
-      <point x="973.047641834481" y="2998.2658741822174" />
-      <point x="-70.25" y="-99.0" />
+      <point x="195.0" y="0.0" />
+      <point x="-129.0" y="0.0" />
     </edge>
     <edge source="com.example.demo.entity.TaskEntity" target="com.example.demo.entity.TaskStatus" relationship="TO_ONE">
-      <point x="0.0" y="-369.5" />
-      <point x="-160.60683786903388" y="3002.745874182217" />
-      <point x="-215.1668378690338" y="3002.745874182217" />
-      <point x="-215.1668378690338" y="2944.6408741822174" />
-      <point x="-214.65365831011826" y="2944.6408741822174" />
-      <point x="-34.04682044108438" y="68.38634727826093" />
+      <point x="-143.17351694620345" y="-58.99224214204588" />
+      <point x="777.5" y="154.06566191383308" />
+      <point x="777.5" y="154.5" />
+      <point x="135.0" y="0.0" />
+    </edge>
+    <edge source="com.example.demo.scheduler.TaskDispatcher" target="com.example.demo.worker.WorkerPoolRegistry" relationship="TO_ONE">
+      <point x="0.0" y="158.0" />
+      <point x="0.0" y="-98.5" />
+    </edge>
+    <edge source="com.example.demo.jmx.TaskDispatcherMBeanImpl" target="com.example.demo.scheduler.TaskDispatcher" relationship="TO_ONE">
+      <point x="0.0" y="83.5" />
+      <point x="0.0" y="-158.0" />
     </edge>
     <edge source="com.example.demo.controller.TaskController" target="com.example.demo.service.TaskLifecycleService" relationship="TO_ONE">
-      <point x="0.0" y="-83.5" />
-      <point x="903.297641834481" y="3716.5158741822174" />
-      <point x="603.297641834481" y="3716.5158741822174" />
-      <point x="0.0" y="-83.5" />
+      <point x="-230.5" y="0.0" />
+      <point x="833.1855273573923" y="1033.0" />
+      <point x="833.1855273573923" y="1133.379417927823" />
+      <point x="164.5" y="0.0" />
     </edge>
     <edge source="com.example.demo.task.SampleTaskWithException" target="com.example.demo.task.AbstractTask" relationship="REALIZATION">
-      <point x="0.0" y="-53.5" />
-      <point x="0.0" y="38.0" />
+      <point x="-166.0" y="-38.0" />
+      <point x="12.0" y="38.0" />
     </edge>
-    <edge source="com.example.demo.dto.TaskRequest" target="com.example.demo.entity.TaskEntity" relationship="CREATE">
-      <point x="-74.25" y="-264.5" />
-      <point x="-74.85683786903388" y="3838.2658741822174" />
-      <point x="-86.35683786903388" y="3838.2658741822174" />
-      <point x="74.25" y="369.5" />
+    <edge source="com.example.demo.controller.TaskController" target="com.example.demo.scheduler.TaskDispatcher" relationship="TO_ONE">
+      <point x="0.0" y="98.0" />
+      <point x="1213.3710547147846" y="1312.2011641443537" />
+      <point x="-400.97206053550633" y="1312.2011641443537" />
+      <point x="-400.97206053550633" y="723.2660768335273" />
+      <point x="-207.0" y="0.0" />
     </edge>
-    <edge source="com.example.demo.dto.TaskRequest" target="com.example.demo.entity.RetryType" relationship="TO_ONE">
-      <point x="74.25" y="-264.5" />
-      <point x="73.64316213096612" y="3838.2658741822174" />
-      <point x="119.39316213096612" y="3838.2658741822174" />
-      <point x="0.0" y="68.5" />
+    <edge source="com.example.demo.scheduler.DelayedTaskWrapper" target="com.example.demo.entity.TaskEntity" relationship="TO_ONE">
+      <point x="135.0874248486378" y="-6.175513540404552" />
+      <point x="777.5" y="326.38879379370485" />
+      <point x="777.5" y="253.97711264996016" />
+      <point x="-146.78788149465584" y="40.9192085940812" />
     </edge>
-    <edge source="com.example.demo.scheduler.TaskDispatcher" target="com.example.demo.repository.DynamicTaskTableDao" relationship="TO_ONE">
-      <point x="-105.06139086777148" y="-116.85397018221738" />
-      <point x="1098.2362509667096" y="3637.0418741822173" />
-      <point x="603.297641834481" y="3637.0418741822173" />
-      <point x="0.0" y="174.0" />
+    <edge source="com.example.demo.scheduler.TaskDispatcher" target="com.example.demo.scheduler.DelayedTaskWrapper" relationship="CREATE">
+      <point x="160.0" y="-158.0" />
+      <point x="48.43087310826547" y="547.2424016298022" />
+      <point x="215.5684605355064" y="547.2424016298022" />
+      <point x="215.5684605355064" y="332.5643073341094" />
+      <point x="-133.5" y="0.0" />
     </edge>
-    <edge source="com.example.demo.retry.ConstantRetryPolicy" target="com.example.demo.retry.RetryPolicy" relationship="REALIZATION">
-      <point x="0.0" y="-53.5" />
-      <point x="0.0" y="38.0" />
+    <edge source="com.example.demo.jmx.TaskDispatcherMBeanImpl" target="com.example.demo.jmx.TaskDispatcherMBean" relationship="REALIZATION">
+      <point x="0.0" y="-83.5" />
+      <point x="0.0" y="83.5" />
+    </edge>
+    <edge source="com.example.demo.controller.TaskController" target="com.example.demo.repository.DynamicTaskTableDao" relationship="TO_ONE">
+      <point x="0.0" y="-98.0" />
+      <point x="1213.3710547147846" y="753.7660768335273" />
+      <point x="239.5" y="0.0" />
     </edge>
     <edge source="com.example.demo.entity.TaskEntity" target="com.example.demo.entity.TaskEntity" relationship="CREATE">
-      <point x="-148.5" y="-0.0" />
-      <point x="-340.6068378690339" y="3398.2658741822174" />
-      <point x="-340.6068378690339" y="3798.2658741822174" />
-      <point x="-234.85683786903388" y="3798.2658741822174" />
-      <point x="-74.25" y="369.5" />
-    </edge>
-    <edge source="com.example.demo.worker.WorkerPoolRegistry" target="com.example.demo.worker.WorkerPool" relationship="CREATE">
-      <point x="70.25" y="-99.0" />
-      <point x="1113.547641834481" y="2978.2658741822174" />
-      <point x="1131.297641834481" y="2978.2658741822174" />
-      <point x="128.0" y="68.5" />
+      <point x="148.5" y="57.5" />
+      <point x="1159.6897089639115" y="270.55790405587896" />
+      <point x="1159.6897089639115" y="586.396167152503" />
+      <point x="959.0" y="586.396167152503" />
+      <point x="-0.0" y="354.0" />
     </edge>
     <edge source="com.example.demo.entity.TaskEntity" target="com.example.demo.entity.RetryType" relationship="TO_ONE">
-      <point x="0.0" y="-369.5" />
-      <point x="-160.60683786903388" y="2958.2658741822174" />
-      <point x="119.39316213096612" y="2958.2658741822174" />
-      <point x="0.0" y="68.5" />
+      <point x="0.0" y="-354.0" />
+      <point x="0.0" y="53.0" />
+    </edge>
+    <edge source="com.example.demo.worker.WorkerPoolRegistry" target="com.example.demo.worker.WorkerPool" relationship="CREATE">
+      <point x="-157.0" y="0.0" />
+      <point x="-227.0" y="1033.0" />
+      <point x="-227.0" y="1237.7339231664728" />
+      <point x="-256.0" y="0.0" />
     </edge>
     <edge source="com.example.demo.service.TaskLifecycleService" target="com.example.demo.repository.DynamicTaskTableDao" relationship="TO_ONE">
-      <point x="0.0" y="-83.5" />
-      <point x="603.297641834481" y="3715.528889091107" />
-      <point x="543.2282509667136" y="3715.528889091107" />
-      <point x="543.2282509667136" y="3591.8439039999967" />
-      <point x="-22.181390867767504" y="173.57802981777922" />
+      <point x="0.0" y="-83.0" />
+      <point x="519.0" y="925.75" />
+      <point x="519.0" y="925.75" />
+      <point x="0.0" y="188.5" />
+    </edge>
+    <edge source="com.example.demo.retry.ExponentRetryPolicy" target="com.example.demo.retry.RetryPolicy" relationship="REALIZATION">
+      <point x="131.0" y="0.0" />
+      <point x="-119.0" y="0.0" />
+    </edge>
+    <edge source="com.example.demo.dto.TaskRequest" target="com.example.demo.entity.TaskEntity" relationship="CREATE">
+      <point x="-148.5" y="0.0" />
+      <point x="145.96611490046507" y="-105.05790405587896" />
+    </edge>
+    <edge source="com.example.demo.dto.TaskRequest" target="com.example.demo.entity.RetryType" relationship="TO_ONE">
+      <point x="0.0" y="-249.0" />
+      <point x="1385.159161816065" y="-300.5" />
+      <point x="131.0" y="0.0" />
+    </edge>
+    <edge source="com.example.demo.scheduler.TaskDispatcher" target="com.example.demo.repository.DynamicTaskTableDao" relationship="TO_ONE">
+      <point x="207.0" y="0.0" />
+      <point x="262.75" y="723.2660768335273" />
+      <point x="262.75" y="753.7660768335273" />
+      <point x="-239.5" y="0.0" />
+    </edge>
+    <edge source="com.example.demo.retry.ConstantRetryPolicy" target="com.example.demo.retry.RetryPolicy" relationship="REALIZATION">
+      <point x="0.0" y="38.0" />
+      <point x="0.0" y="-38.0" />
     </edge>
   </edges>
-  <settings layout="Hierarchic Compact" zoom="0.512000000000002" showDependencies="true" x="663.0528692027087" y="3363.802338723999" />
+  <settings layout="Compact" zoom="0.7013389941214897" showDependencies="true" x="327.4347265482903" y="636.7037795911419" />
   <SelectedNodes />
   <Categories>
-    <Category>Constructors</Category>
     <Category>Fields</Category>
     <Category>Inner Classes</Category>
     <Category>Methods</Category>
