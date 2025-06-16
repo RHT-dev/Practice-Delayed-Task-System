@@ -12,29 +12,23 @@ import org.springframework.stereotype.Component;
 public class TaskDispatcherMBeanImpl implements TaskDispatcherMBean {
 
     private final TaskDispatcher dispatcher;
-    private final DynamicTaskTableDao dao;
+    private final TaskMonitoringJmx monitoring;
 
-    public TaskDispatcherMBeanImpl(TaskDispatcher dispatcher, DynamicTaskTableDao dao) {
+    public TaskDispatcherMBeanImpl(TaskDispatcher dispatcher, TaskMonitoringJmx monitoring) {
         this.dispatcher = dispatcher;
-        this.dao = dao;
+        this.monitoring = monitoring;
     }
 
     @Override
     @ManagedAttribute(description = "Number of task categories")
     public int getCategoryCount() {
-        return dao.getAllCategories().size();
+        return monitoring.getCategoryCount();  // получение без БД
     }
 
     @Override
     @ManagedAttribute(description = "List of categories")
     public String[] getCategories() {
-        return dao.getAllCategories().toArray(new String[0]);
-    }
-
-    @Override
-    @ManagedAttribute(description = "Queue size for category")
-    public int getQueueSize(String category) {
-        return dispatcher.getQueueSize(category);
+        return monitoring.getCategories();  // кэшированный список
     }
 
     @Override

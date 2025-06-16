@@ -2,6 +2,7 @@ package com.example.demo.scheduler;
 
 import com.example.demo.entity.TaskEntity;
 import com.example.demo.entity.TaskStatus;
+import com.example.demo.jmx.TaskMonitoringJmx;
 import com.example.demo.repository.DynamicTaskTableDao;
 import com.example.demo.retry.RetryPolicy;
 import com.example.demo.retry.RetryPolicyResolver;
@@ -11,6 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.*;
 
@@ -25,14 +27,18 @@ public class TaskDispatcher {
     private final Map<String, DelayQueue<DelayedTaskWrapper>> categoryQueues = new ConcurrentHashMap<>();
     private final Map<String, ExecutorService> categoryDispatchers = new ConcurrentHashMap<>();
 
-    public TaskDispatcher(WorkerPoolRegistry pools, DynamicTaskTableDao dao) {
+    private final TaskMonitoringJmx taskMonitoringJmx;
+
+    public TaskDispatcher(WorkerPoolRegistry pools, DynamicTaskTableDao dao, TaskMonitoringJmx taskMonitoringJmx) {
         this.pools = pools;
         this.dao = dao;
+        this.taskMonitoringJmx = taskMonitoringJmx;
     }
 
     @PostConstruct
     public void init() {
-        var categories = dao.getAllCategories();
+        List<String> categories = dao.getAllCategories();
+        taskMonitoringJmx.updateCategories(categories);
         log.info("Initializing dispatcher queues for categories: {}", categories);
         categories.forEach(this::initCategoryDispatcher);
     }

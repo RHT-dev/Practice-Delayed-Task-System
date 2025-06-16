@@ -1,5 +1,6 @@
 package com.example.demo.service;
 
+import com.example.demo.jmx.TaskMonitoringJmx;
 import com.example.demo.repository.DynamicTaskTableDao;
 import com.example.demo.entity.TaskEntity;
 import com.example.demo.entity.TaskStatus;
@@ -15,9 +16,12 @@ public class TaskLifecycleService {
     private final DynamicTaskTableDao dao;
     private final WorkerPoolRegistry pools;
 
-    public TaskLifecycleService(DynamicTaskTableDao dao, WorkerPoolRegistry pools) {
+    private final TaskMonitoringJmx taskMonitoringJmx;
+
+    public TaskLifecycleService(DynamicTaskTableDao dao, WorkerPoolRegistry pools, TaskMonitoringJmx taskMonitoringJmx) {
         this.dao = dao;
         this.pools = pools;
+        this.taskMonitoringJmx = taskMonitoringJmx;
     }
 
     public void initCategoryPool(String category) {
@@ -36,7 +40,7 @@ public class TaskLifecycleService {
         long id = dao.save(task);
         task.setId(id);
 
-
+        taskMonitoringJmx.updateCategories(dao.getAllCategories());
         return id;
     }
 
