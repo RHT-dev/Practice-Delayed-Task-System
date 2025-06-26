@@ -33,6 +33,8 @@ public class TaskEntity {
     @Column(columnDefinition = "TEXT")
     private String retryParamsJSON;
 
+    private transient long startTime; // для jmx
+
     public static TaskEntity fromRs(ResultSet rs) throws SQLException {
         TaskEntity task = new TaskEntity();
         task.setId(rs.getLong("id"));
@@ -53,6 +55,10 @@ public class TaskEntity {
     }
 
     // сеттеры/геттеры
+    public long getStartTime() {return startTime;}
+
+    public void setStartTime(long startTime) {this.startTime = startTime;}
+
     public String getRetryParamsJSON() {
         return retryParamsJSON;
     }

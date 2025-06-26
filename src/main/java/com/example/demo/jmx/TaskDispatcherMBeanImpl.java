@@ -7,6 +7,8 @@ import org.springframework.jmx.export.annotation.ManagedOperation;
 import org.springframework.jmx.export.annotation.ManagedResource;
 import org.springframework.stereotype.Component;
 
+import java.util.Map;
+
 @Component
 @ManagedResource(objectName = "com.example.demo:type=TaskDispatcher", description = "Task Dispatcher Management Bean")
 public class TaskDispatcherMBeanImpl implements TaskDispatcherMBean {
@@ -35,5 +37,30 @@ public class TaskDispatcherMBeanImpl implements TaskDispatcherMBean {
     @ManagedOperation(description = "Shutdown all dispatchers")
     public void shutdown() {
         dispatcher.shutdown();
+    }
+
+
+    @Override
+    @ManagedAttribute
+    public Map<String, Integer> getSuccessCountPerCategory() {
+        return monitoring.getSuccessTaskPerCategory();
+    }
+
+    @Override
+    @ManagedAttribute
+    public Map<String, Integer> getFailureCountPerCategory() {
+        return monitoring.getFailureTaskPerCategory();
+    }
+
+    @Override
+    @ManagedAttribute
+    public Map<String, Long> getExecutionTimePerCategory() {
+        return monitoring.getExecutionTimePerCategory(); // время в миллисекундах
+    }
+
+    @Override
+    @ManagedAttribute
+    public String[] getExecutionStatsAsString() {
+        return monitoring.getExecutionStatsAsString();
     }
 }

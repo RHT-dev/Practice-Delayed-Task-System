@@ -101,6 +101,8 @@ public class TaskDispatcher {
         task.setStatus(TaskStatus.RUNNING);
         log.info(">>> TASK {} STATUS: {}", task.getId(), task.getStatus());
 
+        task.setStartTime(System.currentTimeMillis());
+
         try {
             pools.getPool(category.toLowerCase()).submit(task,
                     () -> handleSuccess(task, category),
@@ -115,6 +117,9 @@ public class TaskDispatcher {
     private void handleSuccess(TaskEntity task, String category) {
         dao.finalStatus(task.getId(), category, TaskStatus.SUCCESS);
         log.info("Task {} status: SUCCESS", task.getId());
+
+        long executionTimeMs = System.currentTimeMillis() - task.getStartTime();
+        taskMonitoringJmx.recordSuccessTask(category, executionTimeMs);
     }
 
     private void handleFail(TaskEntity task, String category, Exception e) {
@@ -124,6 +129,7 @@ public class TaskDispatcher {
         if (attempt > task.getMaxAttempts()) {
             dao.finalStatus(task.getId(), category, TaskStatus.FAILED);
             log.info("Task {} status: FAILED", task.getId());
+            taskMonitoringJmx.recordFailureTask(category);
             return;
         }
 
@@ -131,6 +137,7 @@ public class TaskDispatcher {
         if (retryPolicy == null) {
             dao.finalStatus(task.getId(), category, TaskStatus.FAILED);
             log.info("Task {} status: FAILED", task.getId());
+            taskMonitoringJmx.recordFailureTask(category);
             return;
         }
 
@@ -156,12 +163,4 @@ public class TaskDispatcher {
         });
         log.info("All dispatchers shutdown complete.");
     }
-
-
-    // для JMX
-    public int getQueueSize(String category) {
-        DelayQueue<DelayedTaskWrapper> queue = categoryQueues.get(category.toLowerCase());
-        return queue == null ? 0 : queue.size();
-    }
-
 }
