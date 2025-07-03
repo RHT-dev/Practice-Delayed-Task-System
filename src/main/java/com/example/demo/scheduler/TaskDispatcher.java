@@ -3,6 +3,7 @@ package com.example.demo.scheduler;
 import com.example.demo.entity.TaskEntity;
 import com.example.demo.entity.TaskStatus;
 import com.example.demo.jmx.TaskMonitoringJmx;
+import com.example.demo.metrics.TaskMetrics;
 import com.example.demo.repository.DynamicTaskTableDao;
 import com.example.demo.retry.RetryPolicy;
 import com.example.demo.retry.RetryPolicyResolver;
@@ -29,10 +30,13 @@ public class TaskDispatcher {
 
     private final TaskMonitoringJmx taskMonitoringJmx;
 
-    public TaskDispatcher(WorkerPoolRegistry pools, DynamicTaskTableDao dao, TaskMonitoringJmx taskMonitoringJmx) {
+    private final TaskMetrics taskMetrics;
+
+    public TaskDispatcher(WorkerPoolRegistry pools, DynamicTaskTableDao dao, TaskMonitoringJmx taskMonitoringJmx, TaskMetrics taskMetrics) {
         this.pools = pools;
         this.dao = dao;
         this.taskMonitoringJmx = taskMonitoringJmx;
+        this.taskMetrics = taskMetrics;
     }
 
     @PostConstruct
@@ -92,6 +96,7 @@ public class TaskDispatcher {
     }
 
     private void tryStart(TaskEntity task, String category) {
+        taskMetrics.recordConsidered(category); // prometheus + grafana
         if (dao.updateStatus(task.getId(), category,
                 TaskStatus.CONSIDERED, TaskStatus.RUNNING) == 0) {
             log.info("Skipping task {} — already not in CONSIDERED (current status changed)", task.getId());
@@ -100,7 +105,6 @@ public class TaskDispatcher {
 
         task.setStatus(TaskStatus.RUNNING);
         log.info(">>> TASK {} STATUS: {}", task.getId(), task.getStatus());
-
         task.setStartTime(System.currentTimeMillis());
 
         try {
@@ -119,7 +123,8 @@ public class TaskDispatcher {
         log.info("Task {} status: SUCCESS", task.getId());
 
         long executionTimeMs = System.currentTimeMillis() - task.getStartTime();
-        taskMonitoringJmx.recordSuccessTask(category, executionTimeMs);
+        taskMonitoringJmx.recordSuccessTask(category, executionTimeMs); // jmx
+        taskMetrics.recordSuccess(category); // prometheus + grafana
     }
 
     private void handleFail(TaskEntity task, String category, Exception e) {
@@ -129,7 +134,8 @@ public class TaskDispatcher {
         if (attempt > task.getMaxAttempts()) {
             dao.finalStatus(task.getId(), category, TaskStatus.FAILED);
             log.info("Task {} status: FAILED", task.getId());
-            taskMonitoringJmx.recordFailureTask(category);
+            taskMonitoringJmx.recordFailureTask(category); // jmx
+            taskMetrics.recordFailure(category); // prometheus + grafana
             return;
         }
 
@@ -137,7 +143,8 @@ public class TaskDispatcher {
         if (retryPolicy == null) {
             dao.finalStatus(task.getId(), category, TaskStatus.FAILED);
             log.info("Task {} status: FAILED", task.getId());
-            taskMonitoringJmx.recordFailureTask(category);
+            taskMonitoringJmx.recordFailureTask(category); // jmx
+            taskMetrics.recordFailure(category); // prometheus + grafana
             return;
         }
 
